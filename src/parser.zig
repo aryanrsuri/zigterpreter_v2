@@ -1,3 +1,4 @@
+//! PARSER . ZIG defines the semantic analysis for mlang
 const std = @import("std");
 const ast = @import("ast.zig");
 const token = @import("token.zig");
@@ -7,8 +8,8 @@ const Token_Type = token.Token_Type;
 
 pub const Parser = struct {
     lex: *lexer.Lexer,
-    curr: Token = undefined,
-    peek: Token = undefined,
+    curr: Token = Token{ .kind = .illegal, .literal = "" },
+    peek: Token = Token{ .kind = .illegal, .literal = "" },
 
     const self = @This();
     pub fn init(lex: *lexer.Lexer) self {
@@ -28,64 +29,63 @@ pub const Parser = struct {
 
     pub fn parse_progam(parser: *self, allocator: std.mem.Allocator) !ast.Program {
         var program = ast.Program.init(allocator);
-        while (parser.curr.kind != Token_Type.eof) {
+        while (parser.curr.kind != Token_Type.eof) : (parser.advance()) {
             const statement = parser.parse_statement();
             if (statement) |s| {
                 try program.statements.append(s);
             }
-            parser.advance();
         }
         return program;
     }
 
-    pub fn parse_statement(parser: *self) ?ast.Statement {
+    pub fn parse_statement(parser: *self) ?ast.Node {
         return switch (parser.curr.kind) {
-            .let => parser.parse_let(),
-            .@"return" => parser.parse_return(),
-            else => null,
+            Token_Type.let => parser.parse_let(),
+            Token_Type.@"return" => parser.parse_return(),
+            else => parser.parse_expression(),
         };
     }
 
-    pub fn parse_let(parser: *self) ?ast.Statement {
-        var statement: ast.Statement.let_statement = ast.Statement.let_statement{
-            .token = parser.curr,
-            .ident = Token{},
-            .value = null,
-        };
+    pub fn parse_let(parser: *self) ?ast.Node {
+        var statement: ast.Node = ast.Node{ .type = ast.NodeType.LETSTATEMENT, .tag = parser.curr.kind, .data = ast.Data{
+            .ident = null,
+            .expression = null,
+        } };
 
         if (!parser.expect(.ident)) {
             return null;
         }
 
-        statement.ident = parser.curr;
+        statement.data.ident = parser.curr;
         if (!parser.expect(.assign)) {
             return null;
         }
-        //
-        // while (parser.curr.kind == .semicolon) {
-        //     parser.advance();
-        // }
-        //
-        return ast.Statement{ .let = statement };
+
+        return statement;
     }
 
-    pub fn parse_return(parser: *self) ?ast.Statement {
-        var statement = ast.Statement.return_statement{
-            .token = parser.curr,
-            .value = null,
-        };
+    pub fn parse_return(parser: *self) ?ast.Node {
+        var statement = ast.Node{ .type = ast.NodeType.RETSTATEMENT, .tag = parser.curr.kind, .data = ast.Data{
+            .ident = null,
+            .expression = null,
+        } };
 
         parser.advance();
-        while (parser.curr.kind == token.Token_Type.semicolon) {
+        if (!parser.expect(.semicolon)) {
             parser.advance();
         }
 
-        return ast.Statement{ .@"return" = statement };
+        return statement;
     }
-    //
-    // pub fn parse_expression(parser: *self) {
-    //     _ = parser;
-    // }
+
+    pub fn parse_expression(parser: *self) ?ast.Node {
+        var statement = ast.Node{ .type = ast.NodeType.EXPRESSION, .tag = parser.curr.kind, .data = ast.Data{
+            .ident = null,
+            .expression = null,
+        } };
+
+        return statement;
+    }
 
     pub fn expect(parser: *self, token_type: Token_Type) bool {
         if (parser.peek.kind == token_type) {

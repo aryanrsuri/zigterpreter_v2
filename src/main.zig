@@ -25,14 +25,11 @@ fn repl(g: std.mem.Allocator) !void {
     // std.debug.print("{any}\n", .{prog.statements});
     for (0..prog.statements.items.len) |i| {
         const statement = prog.statements.items[i];
-        // if (@tagName(statement) == .let) {
-        std.debug.print("ident: {s}\n", .{statement.let.ident.literal});
-        std.debug.print("token: {s}\n", .{statement.let.token.literal});
-        std.debug.print("expression: {?}\n", .{statement.let.value});
-        // } else {
-        // std.debug.print("ident: {s}\n", .{statement.@"return".ident.literal});
-        // std.debug.print("token: {s}\n", .{statement.@"return".token.literal});
-        // std.debug.print("expression: {?}\n", .{statement.@"return".value});
+        std.debug.print("STATEMENT {d}\n", .{i});
+        std.debug.print("->TYPE: {any}\n", .{statement.type});
+        std.debug.print("->TAG: {any}\n", .{statement.tag});
+        std.debug.print("->IDENT: {?}\n", .{statement.data.ident});
+        std.debug.print("->EXPRESSION: {any}\n", .{statement.data.expression});
     }
 }
 // var lex = lexer.Lexer.init(in);

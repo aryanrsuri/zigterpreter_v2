@@ -97,7 +97,7 @@ pub const Lexer = struct {
                 _token.kind = .int;
             },
             0 => _token.kind = .eof,
-            else => unreachable,
+            else => _token.kind = .illegal,
         }
 
         lexer.read();
