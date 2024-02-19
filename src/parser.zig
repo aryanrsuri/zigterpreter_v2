@@ -1,7 +1,7 @@
 const std = @import("std");
-const ast = @import("../ast/ast.zig");
-const token = @import("../lexer/token.zig");
-const lexer = @import("../lexer/lexer.zig");
+const ast = @import("ast.zig");
+const token = @import("token.zig");
+const lexer = @import("lexer.zig");
 const Token = token.Token;
 const Token_Type = token.Token_Type;
 

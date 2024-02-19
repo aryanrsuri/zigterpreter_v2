@@ -1,5 +1,5 @@
 const std = @import("std");
-const token = @import("../token/token.zig");
+const token = @import("token.zig");
 const Token = token.Token;
 const fmt = std.fmt;
 

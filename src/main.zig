@@ -1,10 +1,10 @@
 const std = @import("std");
 var gp = std.heap.GeneralPurposeAllocator(.{}){};
 const gpa = gp.allocator();
-pub const lexer = @import("lexer/lexer.zig");
-pub const token = @import("token/token.zig");
-pub const ast = @import("ast/ast.zig");
-pub const parser = @import("parser/parser.zig");
+pub const lexer = @import("lexer.zig");
+pub const token = @import("token.zig");
+pub const ast = @import("ast.zig");
+pub const parser = @import("parser.zig");
 
 pub fn main() !void {
     var i: usize = 0;
