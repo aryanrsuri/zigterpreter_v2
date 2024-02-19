@@ -9,7 +9,7 @@ pub const parser = @import("parser/parser.zig");
 pub fn main() !void {
     var i: usize = 0;
     while (0 < 100) : (i += 1) {
-        try repl(gpa);
+        _ = try repl(gpa);
     }
 }
 
@@ -26,13 +26,13 @@ fn repl(g: std.mem.Allocator) !void {
     for (0..prog.statements.items.len) |i| {
         const statement = prog.statements.items[i];
         // if (@tagName(statement) == .let) {
-        //     std.debug.print("ident: {s}\n", .{statement.let.ident.literal});
-        //     std.debug.print("token: {s}\n", .{statement.let.token.literal});
-        //     std.debug.print("expression: {?}\n", .{statement.let.value});
+        std.debug.print("ident: {s}\n", .{statement.let.ident.literal});
+        std.debug.print("token: {s}\n", .{statement.let.token.literal});
+        std.debug.print("expression: {?}\n", .{statement.let.value});
         // } else {
         // std.debug.print("ident: {s}\n", .{statement.@"return".ident.literal});
-        std.debug.print("token: {s}\n", .{statement.@"return".token.literal});
-        std.debug.print("expression: {?}\n", .{statement.@"return".value});
+        // std.debug.print("token: {s}\n", .{statement.@"return".token.literal});
+        // std.debug.print("expression: {?}\n", .{statement.@"return".value});
     }
 }
 // var lex = lexer.Lexer.init(in);
