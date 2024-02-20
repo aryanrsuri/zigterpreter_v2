@@ -1,7 +1,7 @@
 const std = @import("std");
 const fmt = std.fmt;
 const ascii = std.ascii;
-const token = @import("../token/token.zig");
+const token = @import("token.zig");
 
 pub const Lexer = struct {
     buffer: []const u8,
@@ -97,7 +97,7 @@ pub const Lexer = struct {
                 _token.kind = .int;
             },
             0 => _token.kind = .eof,
-            else => unreachable,
+            else => _token.kind = .illegal,
         }
 
         lexer.read();
