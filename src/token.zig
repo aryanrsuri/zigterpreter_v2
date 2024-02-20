@@ -32,6 +32,6 @@ pub const Token_Type = enum {
 pub const Token = struct {
     kind: Token_Type = .illegal,
     literal: []const u8 = "",
-};
 
-pub const keywords = std.ComptimeStringMap(Token_Type, .{ .{ "fn", .function }, .{ "let", .let }, .{ "true", .true }, .{ "false", .true }, .{ "if", .@"if" }, .{ "else", .@"else" }, .{ "return", .@"return" } });
+    pub const keywords = std.ComptimeStringMap(Token_Type, .{ .{ "fn", .function }, .{ "let", .let }, .{ "true", .true }, .{ "false", .true }, .{ "if", .@"if" }, .{ "else", .@"else" }, .{ "return", .@"return" } });
+};
