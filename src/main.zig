@@ -19,7 +19,7 @@ fn repl(g: std.mem.Allocator) !void {
     const input = try std.io.getStdIn().reader().readUntilDelimiterAlloc(g, '\n', 1024);
     defer g.free(input);
     var lex = lexer.Lexer.init(input);
-    var p = parser.Parser.init(&lex);
+    var p = parser.Parser.init(&lex, g);
     var prog: ast.Program = try p.parse_progam(g);
     // defer prog.deinit();
     // std.debug.print("{any}\n", .{prog.statements});
@@ -27,9 +27,12 @@ fn repl(g: std.mem.Allocator) !void {
         const statement = prog.statements.items[i];
         std.debug.print("STATEMENT {d}\n", .{i});
         std.debug.print("->TYPE: {any}\n", .{statement.type});
-        std.debug.print("->TAG: {any}\n", .{statement.tag});
-        std.debug.print("->IDENT: {?}\n", .{statement.data.ident});
-        std.debug.print("->EXPRESSION: {any}\n", .{statement.data.expression});
+        std.debug.print("->TAG: {s}\n", .{statement.tag.literal});
+        // std.debug.print("->IDENT v1: {any}\n", .{statement.ident});
+        for (statement.children.items) |item| {
+            std.debug.print("->ITEM: {any}\n", .{item});
+        }
+        // std.debug.print("->EXPRESSION: {any}\n", .{statement.type});
     }
 }
 // var lex = lexer.Lexer.init(in);

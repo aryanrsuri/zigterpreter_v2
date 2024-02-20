@@ -5,27 +5,56 @@ const Token = token.Token;
 const fmt = std.fmt;
 
 pub const NodeType = enum {
+    LET_STATEMENT,
+    RETURN_STATEMENT,
     EXPRESSION,
-    LETSTATEMENT,
-    RETSTATEMENT,
+    IDENTIFIER,
+
+    // LEAVES
     INT,
-    FLOAT,
     BOOL,
     NULL,
     STRING,
 };
 
 pub const Node = struct {
+    // STATEMENT or TYPE of EXPRESSION
     type: NodeType,
-    tag: token.Token_Type,
-    data: Data,
+    // CURRENT TOKEN TYPE
+    tag: token.Token,
+    // NEXT NODE in STATEMENT
+    children: std.ArrayList(?*Node),
+    allocator: std.mem.Allocator,
+    ident: ?token.Token,
+    // left: ?*Node,
+    // right: ?*Node,
+
+    const self = @This();
+    pub fn init(alloc: std.mem.Allocator, @"type": NodeType, tag: token.Token) self {
+        return .{
+            .type = @"type",
+            .tag = tag,
+            .allocator = alloc,
+            .children = std.ArrayList(?*Node).init(alloc),
+            .ident = null,
+        };
+    }
+
+    pub fn deinit(node: *self) void {
+        node.allocator.free(node.children);
+        node.* = undefined;
+    }
 };
 
-pub const Data = struct {
-    ident: ?Token,
-    expression: ?[]const u8,
-};
+// Identifier equivilant
+// pub const Data = struct {
+//     ident: ?Token,
+//     value: ?[]const u8,
+// };
+//
 // what is an expression?
+//
+//
 // containers for the expression being evaluated
 // is that not just a Node?
 //  5
