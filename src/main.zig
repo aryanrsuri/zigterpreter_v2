@@ -21,18 +21,19 @@ fn repl(g: std.mem.Allocator) !void {
     var lex = lexer.Lexer.init(input);
     var p = parser.Parser.init(&lex, g);
     var prog: ast.Program = try p.parse_progam(g);
-    // defer prog.deinit();
-    // std.debug.print("{any}\n", .{prog.statements});
-    for (0..prog.statements.items.len) |i| {
-        const statement = prog.statements.items[i];
+    defer prog.deinit();
+    for (0..prog.nodes.items.len) |i| {
+        const statement = prog.nodes.items[i];
         std.debug.print("STATEMENT {d}\n", .{i});
         std.debug.print("->TYPE: {any}\n", .{statement.type});
-        std.debug.print("->TAG: {s}\n", .{statement.tag.literal});
-        // std.debug.print("->IDENT v1: {any}\n", .{statement.ident});
-        for (statement.children.items) |item| {
-            std.debug.print("->ITEM: {any}\n", .{item});
+        if (statement.data.l) |l| {
+            std.debug.print("->LEFT (statement decleration) : {s}\n", .{l.literal});
+            // std.debug.print("->LEFT (statement decleration) : {any}\n", .{l.kind});
         }
-        // std.debug.print("->EXPRESSION: {any}\n", .{statement.type});
+        if (statement.data.r) |r| {
+            std.debug.print("->RIGHT (statement expression): {s}\n", .{r.literal});
+            // std.debug.print("->LEFT (statement decleration) : {any}\n", .{r.kind});
+        }
     }
 }
 // var lex = lexer.Lexer.init(in);

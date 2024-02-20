@@ -90,7 +90,7 @@ pub const Lexer = struct {
             '}' => _token.kind = .rbrace,
             'a'...'z', 'A'...'Z', '_' => {
                 _token.literal = lexer.identifier();
-                _token.kind = token.keywords.get(_token.literal) orelse .ident;
+                _token.kind = token.Token.keywords.get(_token.literal) orelse .ident;
             },
             '0'...'9' => {
                 _token.literal = lexer.integer();

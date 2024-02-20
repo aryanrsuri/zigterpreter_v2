@@ -30,60 +30,73 @@ pub const Parser = struct {
     }
 
     pub fn parse_progam(parser: *self, allocator: std.mem.Allocator) !ast.Program {
-        var program = ast.Program.init(allocator);
+        var program: ast.Program = .{
+            .alloc = allocator,
+            .nodes = std.ArrayList(ast.Node).init(allocator),
+        };
+        var i: usize = 0;
         while (parser.curr.kind != Token_Type.eof) : (parser.advance()) {
-            const statement = try parser.parse_statement();
+            const statement = parser.parse_statement();
             if (statement) |s| {
-                try program.statements.append(s);
+                try program.nodes.append(s);
             }
+
+            i += 1;
         }
         return program;
     }
 
-    pub fn parse_statement(parser: *self) !?ast.Node {
+    pub fn parse_statement(parser: *self) ?ast.Node {
         return switch (parser.curr.kind) {
-            Token_Type.let => try parser.parse_let(),
-            // Token_Type.@"return" => parser.parse_return(),
+            .let => parser.parse_let(),
+            .@"return" => parser.parse_return(),
             // else => parser.parse_expression(),
             else => null,
         };
     }
 
-    pub fn parse_let(parser: *self) !?ast.Node {
-        var statement: ast.Node = ast.Node.init(parser.allocator, ast.NodeType.LET_STATEMENT, parser.curr);
+    pub fn parse_let(parser: *self) ?ast.Node {
+        var statement: ast.Node = .{
+            .type = ast.NodeType.LET_STATEMENT,
+            .tag = parser.curr,
+            .data = .{
+                .l = null,
+                .r = null,
+            },
+        };
         if (!parser.expect(.ident)) {
             return null;
         }
-
-        var next_token = parser.curr;
-        var next_node = ast.Node.init(parser.allocator, ast.NodeType.IDENTIFIER, next_token);
-        try statement.children.append(&next_node);
-
+        const lhs = parser.curr;
         if (!parser.expect(.assign)) {
             return null;
         }
-
-        // while (!(parser.curr.kind == Token_Type.semicolon)) {
-        //     parser.advance();
-        // }
-
-        // statement.data.expression = parser.parse_expression();
+        parser.advance();
+        const rhs = parser.curr;
+        statement.data = .{ .l = lhs, .r = rhs };
         return statement;
     }
-    //
-    // pub fn parse_return(parser: *self) ?ast.Node {
-    //     var statement = ast.Node{ .type = ast.NodeType.RETURN_STATEMENT, .tag = parser.curr.kind, .data = ast.Data{
-    //         .ident = null,
-    //         .expression = null,
-    //     } };
-    //
-    //     parser.advance();
-    //     if (!parser.expect(.semicolon)) {
-    //         parser.advance();
-    //     }
-    //
-    //     return statement;
-    // }
+
+    pub fn parse_return(parser: *self) ?ast.Node {
+        var statement: ast.Node = .{
+            .type = ast.NodeType.RETURN_EXPRESSION,
+            .tag = parser.curr,
+            .data = .{
+                .l = null,
+                .r = null,
+            },
+        };
+        parser.advance();
+        statement.data = .{
+            .l = null,
+            .r = parser.curr,
+        };
+        if (!parser.expect(.semicolon)) {
+            parser.advance();
+        }
+
+        return statement;
+    }
     //
     // pub fn parse_expression(parser: *self) ?ast.Node {
     //     var statement = ast.Node{ .type = ast.NodeType.EXPRESSION, .tag = parser.curr.kind, .data = ast.Data{
@@ -94,6 +107,7 @@ pub const Parser = struct {
     //     return statement;
     // }
     //
+
     pub fn expect(parser: *self, token_type: Token_Type) bool {
         if (parser.peek.kind == token_type) {
             parser.advance();
